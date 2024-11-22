@@ -1,0 +1,2 @@
+Các thư viện cần cài đặt: fastapi uvicorn jinja2 python-multipart
+Để chạy thì mở terminal và điền vào câu lệnh uvicorn main:app --reload sau đó mở trình duyệt và tìm đến http://localhost:8000/
