@@ -5,35 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách công việc</title>
     <style>
-        /* Đặt nền và định dạng tổng quan */
+        /* CSS giữ nguyên như trước */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f0f8ff;
             color: #333;
-            animation: fadeIn 1s ease-in-out; /* Hiệu ứng xuất hiện toàn bộ trang */
         }
 
-        /* Tiêu đề */
         h1 {
             text-align: center;
             font-size: 36px;
             color: #003366;
             margin: 20px 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: slideDown 1s ease-out; /* Hiệu ứng tiêu đề trượt xuống */
         }
 
-        /* Bố cục bảng */
         table {
             width: 80%;
             margin: 20px auto;
             border-collapse: collapse;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             background-color: white;
-            animation: fadeIn 1.5s ease-in-out; /* Hiệu ứng bảng xuất hiện */
         }
 
         th, td {
@@ -48,26 +41,15 @@
             text-transform: uppercase;
         }
 
-        td {
-            font-weight: bold; /* Làm chữ trong bảng đậm */
-        }
-
-        /* Dòng cuối bảng */
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Hiệu ứng hover trên hàng */
         tr {
-            transition: background-color 0.3s ease-in-out; /* Hiệu ứng hover mượt */
+            transition: background-color 0.3s ease-in-out;
         }
 
-        tr:hover {
+        tr:hover td {
             background-color: #e6f7ff;
-            transform: scale(1.02); /* Làm hàng phóng to nhẹ khi hover */
+            transform: scale(1.02);
         }
 
-        /* Các nút */
         button {
             background-color: #0066cc;
             color: white;
@@ -76,51 +58,48 @@
             border-radius: 4px;
             font-size: 14px;
             cursor: pointer;
-            transition: all 0.3s ease; /* Hiệu ứng mượt khi hover */
+            transition: all 0.3s ease;
         }
 
         button:hover {
             background-color: #004c99;
-            transform: translateY(-2px); /* Nút bấm nhảy lên nhẹ khi hover */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* Form nhập liệu */
         input[type="text"] {
             width: 90%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 14px;
-            transition: border-color 0.3s ease-in-out; /* Hiệu ứng khi nhập */
         }
 
-        input[type="text"]:focus {
-            border-color: #0066cc;
-            outline: none;
-            box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+        /* Animation khi thêm/xóa công việc */
+        .fade-out {
+            animation: fadeOut 0.5s forwards;
         }
 
-        /* Animation cho toàn trang và tiêu đề */
+        .fade-in {
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                height: 0;
+                transform: scale(0.9);
+            }
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
+                transform: scale(0.9);
             }
             to {
                 opacity: 1;
+                transform: scale(1);
             }
         }
 
-        @keyframes slideDown {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
     </style>
 </head>
 <body>
@@ -129,27 +108,77 @@
         <thead>
             <tr>
                 <th>Công việc</th>
-                <th>Tùy chọn</th>
+                <th>Lựa chọn</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="todo-body">
             {% for id in tododict %}
-            <tr>
+            <tr id="todo-{{ id }}">
                 <td>{{ tododict[id] }}</td>
                 <td>
-                    <a href="/delete/{{ id }}">
-                        <button>Xóa</button>
-                    </a>
+                    <button onclick="deleteTodo('{{ id }}')">Xóa</button>
                 </td>
             </tr>
             {% endfor %}
             <tr>
-                <form method="POST" action="/add">
-                    <td><input type="text" name="newtodo" placeholder="Thêm công việc mới..." required></td>
-                    <td><button type="submit">Thêm</button></td>
-                </form>
+                <td colspan="2">
+                    <input type="text" id="new-todo" placeholder="Thêm công việc mới..." required>
+                    <button onclick="addTodo()">Thêm</button>
+                </td>
             </tr>
         </tbody>
     </table>
+
+    <script>
+        // Xóa công việc
+        async function deleteTodo(id) {
+            const row = document.getElementById(`todo-${id}`);
+            row.classList.add('fade-out'); // Thêm hiệu ứng fade-out
+            setTimeout(async () => {
+                const response = await fetch(`/delete/${id}`, { method: 'GET' });
+                if (response.ok) {
+                    row.remove(); // Xóa khỏi DOM sau khi server xử lý
+                }
+            }, 500); // Chờ hiệu ứng kết thúc
+        }
+        // Thêm công việc
+        async function addTodo() {
+            const newTodo = document.getElementById('new-todo').value.trim();
+            if (!newTodo) return;
+
+            const formData = new FormData();
+            formData.append('newtodo', newTodo);
+
+            const response = await fetch('/add', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                const todoBody = document.getElementById('todo-body');
+                const newRow = document.createElement('tr');
+                newRow.classList.add('fade-in'); // Thêm hiệu ứng fade-in
+
+                // Lấy ID mới từ server
+                const newId = result.id;
+
+                newRow.id = `todo-${newId}`;
+                newRow.innerHTML = `
+                    <td>${newTodo}</td>
+                    <td>
+                        <button onclick="deleteTodo('${newId}')">Xóa</button>
+                    </td>
+                `;
+                todoBody.insertBefore(newRow, todoBody.lastElementChild); // Thêm vào trước hàng input
+                document.getElementById('new-todo').value = ''; // Xóa dữ liệu trong ô input
+
+                // Sau khi hiệu ứng hoàn thành (500ms), tải lại trang
+                setTimeout(() => {
+                    location.reload(); // Tải lại trang
+                }, 500); // 500ms là thời gian của hiệu ứng fade-in
+            }
+        }
+    </script>
 </body>
 </html>
