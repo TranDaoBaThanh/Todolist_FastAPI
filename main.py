@@ -8,31 +8,36 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 async def root(request: Request):
-    with open('database.json') as f:
+    # Đọc file với encoding UTF-8
+    with open('database.json', encoding="utf-8") as f:
         data = json.load(f)
-    return templates.TemplateResponse("todolist.html",{"request":request,"tododict":data})
+    return templates.TemplateResponse("todolist.html", {"request": request, "tododict": data})
 
 @app.get("/delete/{id}")
 async def delete_todo(request: Request, id: str):
-    with open('database.json') as f:
+    # Đọc file với encoding UTF-8
+    with open('database.json', encoding="utf-8") as f:
         data = json.load(f)
     del data[id]
-    with open('database.json','w') as f:
-        json.dump(data,f)
+    # Ghi file với encoding UTF-8
+    with open('database.json', 'w', encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
     return RedirectResponse("/", 303)
 
 @app.post("/add")
 async def add_todo(request: Request):
-    with open('database.json') as f:
+    # Đọc file với encoding UTF-8
+    with open('database.json', encoding="utf-8") as f:
         data = json.load(f)
     formdata = await request.form()
     newdata = {}
-    i=1
+    i = 1
     for id in data:
         newdata[str(i)] = data[id]
-        i+=1
+        i += 1
     newdata[str(i)] = formdata["newtodo"]
     print(newdata)
-    with open('database.json','w') as f:
-        json.dump(newdata,f)
+    # Ghi file với encoding UTF-8
+    with open('database.json', 'w', encoding="utf-8") as f:
+        json.dump(newdata, f, ensure_ascii=False, indent=4)
     return RedirectResponse("/", 303)

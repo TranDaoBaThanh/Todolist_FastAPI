@@ -1,53 +1,155 @@
-<html>
-    <head>
-        <title>MyTODO list</title>
-    </head>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách công việc</title>
     <style>
-        *{
+        /* Đặt nền và định dạng tổng quan */
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
+            padding: 0;
+            background-color: #f0f8ff;
+            color: #333;
+            animation: fadeIn 1s ease-in-out; /* Hiệu ứng xuất hiện toàn bộ trang */
         }
-        table {
-            align-items: center;
-            margin-right: auto;
-            margin-left: auto;
-        }
+
+        /* Tiêu đề */
         h1 {
-            width: fit-content;
-            font-family: 'Courier New', Courier, monospace;
-            margin-left: auto;
-            margin-right: auto;
-            font-size: 50px;
-        }
-        th,td {
-            width: 250px;
-            justify-content: center;
-            font-size: 20px;
-            font-family: 'Lucida Sans';
-        }
-        td:nth-child(2) {
             text-align: center;
+            font-size: 36px;
+            color: #003366;
+            margin: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: slideDown 1s ease-out; /* Hiệu ứng tiêu đề trượt xuống */
+        }
+
+        /* Bố cục bảng */
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: white;
+            animation: fadeIn 1.5s ease-in-out; /* Hiệu ứng bảng xuất hiện */
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #003366;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        td {
+            font-weight: bold; /* Làm chữ trong bảng đậm */
+        }
+
+        /* Dòng cuối bảng */
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Hiệu ứng hover trên hàng */
+        tr {
+            transition: background-color 0.3s ease-in-out; /* Hiệu ứng hover mượt */
+        }
+
+        tr:hover {
+            background-color: #e6f7ff;
+            transform: scale(1.02); /* Làm hàng phóng to nhẹ khi hover */
+        }
+
+        /* Các nút */
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease; /* Hiệu ứng mượt khi hover */
+        }
+
+        button:hover {
+            background-color: #004c99;
+            transform: translateY(-2px); /* Nút bấm nhảy lên nhẹ khi hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Form nhập liệu */
+        input[type="text"] {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease-in-out; /* Hiệu ứng khi nhập */
+        }
+
+        input[type="text"]:focus {
+            border-color: #0066cc;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+        }
+
+        /* Animation cho toàn trang và tiêu đề */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
     </style>
-    <body>
-        <h1>My TO DO list</h1>
-        <br/>
-        <table>
+</head>
+<body>
+    <h1>Danh sách công việc</h1>
+    <table>
+        <thead>
             <tr>
-                <th>ToDo</th>
-                <th>Options</th>
+                <th>Công việc</th>
+                <th>Tùy chọn</th>
             </tr>
+        </thead>
+        <tbody>
             {% for id in tododict %}
             <tr>
                 <td>{{ tododict[id] }}</td>
-                <td><a href="/delete/{{ id }}"><button>Delete</button></a></td>
+                <td>
+                    <a href="/delete/{{ id }}">
+                        <button>Xóa</button>
+                    </a>
+                </td>
             </tr>
             {% endfor %}
             <tr>
                 <form method="POST" action="/add">
-                <td><input type="text" name="newtodo" required></td>
-                <td style="text-align: center;"><button type="submit">Add New</button></td>
+                    <td><input type="text" name="newtodo" placeholder="Thêm công việc mới..." required></td>
+                    <td><button type="submit">Thêm</button></td>
                 </form>
             </tr>
-        </table>
-    </body>
+        </tbody>
+    </table>
+</body>
 </html>
